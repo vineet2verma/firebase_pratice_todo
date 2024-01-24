@@ -2,7 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_pratice_todo/constants/constants.dart';
-import 'package:firebase_pratice_todo/models/note_model.dart';
+import 'package:firebase_pratice_todo/models/model.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_pratice_todo/pages/login.dart';
 import 'package:flutter/material.dart';
@@ -95,15 +95,25 @@ class _MySignUpPageState extends State<MySignUpPage> {
                       email: controllerSignUpEmail.text.toString(),
                       password: controllerSignUpPswd.text.toString()
                   );
-                  var uuid = usercred.user!.uid;
+                  var uuid = usercred.user!.email;
+                  firebase.collection(Utilities.dbusermaster).doc(uuid).set(
+                      SignUpModel(
+                        EmailId: controllerSignUpEmail.text.toString(),
+                        Password: controllerSignUpPswd.text.toString(),
+                        PhoneNo: controllerSignUpPhone.text.toString(),
+                        UserName: controllerSignUpUserName.text.toString(),
+                      ).toMap()
+                  );
 
-                  firebase.collection(Utilities.dbusers).doc(uuid).set({
-                      "UserName" : controllerSignUpUserName.text.toString(),
-                      "PhoneNo" : controllerSignUpPhone.text.toString(),
-                      "EmailId" : controllerSignUpEmail.text.toString(),
-                      "Password" : controllerSignUpPswd.text.toString(),
-                      "CreatedAt" : Utilities.formattedDate
-                    }).then((value) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User Created")) )     );
+
+                  firebase.collection(Utilities.dbusers).doc(uuid).set(
+                    SignUpModel(
+                      EmailId: controllerSignUpEmail.text.toString(),
+                      Password: controllerSignUpPswd.text.toString(),
+                      PhoneNo: controllerSignUpPhone.text.toString(),
+                      UserName: controllerSignUpUserName.text.toString(),
+                      ).toMap()
+                      ).then((value) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User Created")) )     );
                   clearVal();
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
                     return MyLoginPage();

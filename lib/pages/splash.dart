@@ -28,7 +28,7 @@ class _MySplashPageState extends State<MySplashPage> {
       if (userid != null && userid.isNotEmpty) {
         toNavigate = MyHomePage(userId: userid);
       }
-      Navigator.push(context, MaterialPageRoute(
+      Navigator.pushReplacement(context, MaterialPageRoute(
         builder: (context) {
           return toNavigate;
         },
@@ -39,6 +39,7 @@ class _MySplashPageState extends State<MySplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // appBar: AppBar( ),
       backgroundColor: Colors.blueAccent,
       body: Container(
         child: Center(child: Text("Welcome to To Do App")),

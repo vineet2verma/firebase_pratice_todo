@@ -44,6 +44,14 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string> for ios user image profile page</string>
+	<key>NSCameraUsageDescription</key>
+	<string> for ios user image profile page</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string> for ios user image profile page</string>
 	<true/>
+
+
 </dict>
 </plist>
