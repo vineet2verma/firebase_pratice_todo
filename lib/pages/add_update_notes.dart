@@ -12,8 +12,7 @@ class MyAddUpdatePage extends StatefulWidget {
   String? mytitle;
   String? mydesc;
   String? docID;
-  List userList;
-  DateTime? mypickDate = DateTime.now();
+  int? mypickDate = DateTime.now().millisecondsSinceEpoch;
 
   MyAddUpdatePage(
       {required this.mychoice,
@@ -21,7 +20,6 @@ class MyAddUpdatePage extends StatefulWidget {
       this.mytitle,
       this.mydesc,
       this.docID,
-      required this.userList,
       this.mypickDate});
 
   @override
@@ -35,17 +33,32 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
   static final controllerTitle = TextEditingController();
   static final controllerDesc = TextEditingController();
   static final controllerSelectedUser = TextEditingController();
-  DateTime? pickDate;
+  int? pickDate;
   bool _selectedDatebool = false;
-  var list = <String>['One', 'Two', 'Three', 'Four'];
+  List<String> list = [
+    'One',
+    'Two',
+    'Three',
+    'Four',
+    'Five',
+    'Six',
+    'Seven',
+    'Eight',
+    'Nine',
+    'Ten'
+  ];
 
   getClearTextController() {
     controllerTitle.clear();
     controllerDesc.clear();
+    controllerSelectedUser.clear();
+  }
+
+  bool dateboolfunc() {
+    return _selectedDatebool = true;
   }
 
   addFunc() {
-    print("=>    ${pickDate}");
     firestore
         .collection(Utilities.dbusers)
         .doc(fireauth.currentUser!.email)
@@ -55,41 +68,51 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
                 desc: controllerDesc.text.toString(),
                 selectedUser: controllerSelectedUser.text.toString(),
                 seleteDate: pickDate == null
-                    ? DateTime.now().millisecondsSinceEpoch.toString()
-                    : pickDate.toString())
+                    ? DateTime.now().millisecondsSinceEpoch
+                    : pickDate)
             .toMap())
         .then((value) => print("Note Added"))
+        .then((value) => getClearTextController())
         .catchError((e) {
       return print("Error : $e");
     });
-    getClearTextController();
+
     Navigator.pop(context);
   }
 
-  void addAndUpdateFunc() {
-    widget.mychoice == "Add" ? '' : controllerTitle.text = widget.mytitle!;
-    widget.mychoice == "Add" ? '' : controllerDesc.text = widget.mydesc!;
-    widget.mychoice == "Add"
-        ? ''
-        : controllerDesc.text = widget.myselecteduser!;
-
-    widget.mychoice == "Add"
-        ? addFunc()
-        : updateFunc(widget.docID, widget.myselecteduser, widget.mytitle,
-            widget.mydesc, widget.mypickDate);
+  updateFunc(currdocID, updatepickDate, updatetitle, updatedesc, updateuser) {
+    print(DateFormat("dd-MMM-yyyy")
+        .format(DateTime.fromMillisecondsSinceEpoch(pickDate!))
+        .toString());
+    firestore
+        .collection(Utilities.dbusers)
+        .doc(fireauth.currentUser!.email)
+        .collection(Utilities.dbnotes)
+        .doc(currdocID)
+        .update(NoteModel(
+                selectedUser: controllerSelectedUser.text.toString(),
+                title: controllerTitle.text.toString(),
+                desc: controllerDesc.text.toString(),
+                seleteDate: int.parse(pickDate
+                    .toString()) // DateFormat("dd-MMM-yyyy").format(DateTime.fromMillisecondsSinceEpoch(pickDate!)).toString()
+                )
+            .toMap())
+        .then((value) => Navigator.pop(context))
+        .then((value) => print("Note Updated"));
   }
 
   Future<void> DatePickerFunc(BuildContext context) async {
-    final DateTime? selectedDateVal = await showDatePicker(
+    final DateTime? selectedDateVal;
+    selectedDateVal = await showDatePicker(
       context: context,
       firstDate: DateTime(DateTime.now().year),
-      lastDate: DateTime.now(),
+      lastDate: DateTime.now().add(Duration(days: 365)),
       initialDate: DateTime.now(),
     );
+
     setState(() {
-      pickDate = selectedDateVal;
-      print(pickDate);
-      _selectedDatebool = true;
+      pickDate = selectedDateVal!.millisecondsSinceEpoch;
+      dateboolfunc();
     });
   }
 
@@ -99,22 +122,17 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
     super.initState();
     firestore = FirebaseFirestore.instance;
     fireauth = FirebaseAuth.instance;
-
-    // addAndUpdateFunc();
+    addAndUpdateFunc();
   }
 
-  updateFunc(currdocID, updatetitle, updatedesc, pickDate, updateuser) {
-    firestore
-        .collection(Utilities.dbusers)
-        .doc(fireauth.currentUser!.email)
-        .collection(Utilities.dbnotes)
-        .doc(currdocID)
-        .update(NoteModel(
-                selectedUser: updateuser,
-                title: updatetitle,
-                desc: updatedesc,
-                seleteDate: pickDate.toString())
-            .toMap());
+  void addAndUpdateFunc() {
+    pickDate = widget.mypickDate;
+    widget.mychoice == "Add" ? '' : dateboolfunc();
+    widget.mychoice == "Add" ? '' : controllerTitle.text = widget.mytitle!;
+    widget.mychoice == "Add" ? '' : controllerDesc.text = widget.mydesc!;
+    widget.mychoice == "Add"
+        ? ''
+        : controllerSelectedUser.text = widget.myselecteduser.toString();
   }
 
   @override
@@ -140,11 +158,11 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
                 children: [
                   SizedBox(
                     height: 50,
-                    width: 200,
+                    width: 150,
                     child: ElevatedButton(
                         child: _selectedDatebool
                             ? Text(
-                                "${DateFormat("dd-MMM-yyyy").format(pickDate!)}")
+                                "${DateFormat("dd-MMM-yyyy").format(DateTime.fromMillisecondsSinceEpoch(pickDate!)).toString()}")
                             : Text("Select Date"),
                         onPressed: () {
                           DatePickerFunc(context);
@@ -224,7 +242,10 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
                           backgroundColor:
                               MaterialStatePropertyAll<Color>(Colors.green)),
                       onPressed: () {
-                        addFunc();
+                        widget.mychoice == "Add"
+                            ? addFunc()
+                            : updateFunc(widget.docID, pickDate, widget.mytitle,
+                                widget.mydesc, widget.myselecteduser);
                       },
                       child: Text(
                         widget.mychoice == "Add" ? "Add Task" : "Update Task",

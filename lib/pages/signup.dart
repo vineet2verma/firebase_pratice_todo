@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_pratice_todo/constants/constants.dart';
@@ -16,14 +15,13 @@ class MySignUpPage extends StatefulWidget {
 }
 
 class _MySignUpPageState extends State<MySignUpPage> {
-
   var controllerSignUpUserName = TextEditingController();
   var controllerSignUpPhone = TextEditingController();
   var controllerSignUpEmail = TextEditingController();
   var controllerSignUpPswd = TextEditingController();
   bool passwordVisible = true;
 
-  void clearVal(){
+  void clearVal() {
     controllerSignUpUserName.clear();
     controllerSignUpPhone.clear();
     controllerSignUpEmail.clear();
@@ -45,7 +43,9 @@ class _MySignUpPageState extends State<MySignUpPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 30,),
+              SizedBox(
+                height: 30,
+              ),
               TextFormField(
                 controller: controllerSignUpUserName,
                 decoration: InputDecoration(
@@ -53,7 +53,9 @@ class _MySignUpPageState extends State<MySignUpPage> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(21))),
               ), // User Name
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               TextFormField(
                 controller: controllerSignUpPhone,
                 decoration: InputDecoration(
@@ -61,7 +63,9 @@ class _MySignUpPageState extends State<MySignUpPage> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(21))),
               ), // Phone no
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               TextFormField(
                 controller: controllerSignUpEmail,
                 decoration: InputDecoration(
@@ -69,56 +73,66 @@ class _MySignUpPageState extends State<MySignUpPage> {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(21))),
               ), // Email Id
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               TextFormField(
                 controller: controllerSignUpPswd,
                 obscureText: passwordVisible,
                 decoration: InputDecoration(
                     labelText: "Password",
                     suffixIcon: InkWell(
-                      onTap: () {
-                        setState(() {
-                          passwordVisible = !passwordVisible;
-                        });
-                      },
-                      child: passwordVisible==true?Icon(Icons.remove_red_eye_rounded):Icon(Icons.remove_red_eye_outlined) ),
+                        onTap: () {
+                          setState(() {
+                            passwordVisible = !passwordVisible;
+                          });
+                        },
+                        child: passwordVisible == true
+                            ? Icon(Icons.remove_red_eye_rounded)
+                            : Icon(Icons.remove_red_eye_outlined)),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(21))),
               ), // Password
 
-              SizedBox(height: 20,),
+              SizedBox(
+                height: 20,
+              ),
               InkWell(
-                onTap: () async{
+                onTap: () async {
                   var firebase = FirebaseFirestore.instance;
                   var auth = FirebaseAuth.instance;
                   var usercred = await auth.createUserWithEmailAndPassword(
                       email: controllerSignUpEmail.text.toString(),
-                      password: controllerSignUpPswd.text.toString()
-                  );
+                      password: controllerSignUpPswd.text.toString());
                   var uuid = usercred.user!.email;
-                  firebase.collection(Utilities.dbusermaster).doc(uuid).set(
-                      SignUpModel(
+                  firebase
+                      .collection(Utilities.dbusermaster)
+                      .doc(uuid)
+                      .set(SignUpModel(
+                        EmailId: controllerSignUpEmail.text.toString(),
+                        // Password: controllerSignUpPswd.text.toString(),
+                        PhoneNo: controllerSignUpPhone.text.toString(),
+                        UserName: controllerSignUpUserName.text.toString(),
+                      ).toMap());
+
+                  firebase
+                      .collection(Utilities.dbusers)
+                      .doc(uuid)
+                      .set(SignUpModel(
                         EmailId: controllerSignUpEmail.text.toString(),
                         Password: controllerSignUpPswd.text.toString(),
                         PhoneNo: controllerSignUpPhone.text.toString(),
                         UserName: controllerSignUpUserName.text.toString(),
-                      ).toMap()
-                  );
-
-
-                  firebase.collection(Utilities.dbusers).doc(uuid).set(
-                    SignUpModel(
-                      EmailId: controllerSignUpEmail.text.toString(),
-                      Password: controllerSignUpPswd.text.toString(),
-                      PhoneNo: controllerSignUpPhone.text.toString(),
-                      UserName: controllerSignUpUserName.text.toString(),
-                      ).toMap()
-                      ).then((value) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User Created")) )     );
+                      ).toMap())
+                      .then((value) => ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                              SnackBar(content: Text("User Created"))));
                   clearVal();
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return MyLoginPage();
-                  },) );
-
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return MyLoginPage();
+                    },
+                  ));
                 },
                 child: Container(
                   width: double.infinity,
@@ -127,24 +141,28 @@ class _MySignUpPageState extends State<MySignUpPage> {
                     color: Colors.blue,
                   ),
                   child: Center(
-                      child: Text("Sign Up",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 31))),
+                      child: Text("Sign Up",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 31))),
                 ),
               ),
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               TextButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return MyLoginPage();
-                  },) );
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return MyLoginPage();
+                    },
+                  ));
                 },
                 child: Text("If You have account? Sign in"),
               ),
-
             ],
           ),
         ),
       ),
-
     );
   }
 }

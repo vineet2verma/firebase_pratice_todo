@@ -6,7 +6,7 @@ class NoteModel {
   String? selectedUser;
   String title;
   String desc;
-  String? seleteDate;
+  int? seleteDate;
 
   NoteModel(
       {required this.selectedUser,
@@ -39,13 +39,13 @@ class SignUpModel {
   String UserName;
   String PhoneNo;
   String EmailId;
-  String Password;
+  String? Password;
 
   SignUpModel({
     required this.UserName,
     required this.PhoneNo,
     required this.EmailId,
-    required this.Password,
+    this.Password,
   });
 
   Map<String, dynamic> toMap() {

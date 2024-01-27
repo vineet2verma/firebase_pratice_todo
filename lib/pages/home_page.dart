@@ -21,6 +21,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late FirebaseFirestore firestore;
   late FirebaseAuth fireauth;
+  dynamic usernamelist = [];
 
   bool _selectedDatebool = false;
   String? _selectedDateVal;
@@ -79,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 selectedUser: selecteduser,
                 title: updatetitle,
                 desc: updatedesc,
-                seleteDate: DateTime.now().millisecondsSinceEpoch.toString())
+                seleteDate: DateTime.now().millisecondsSinceEpoch)
             .toMap());
 
     // firestore
@@ -93,112 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
     //             time: DateTime.now().millisecondsSinceEpoch.toString())
     //         .toMap());
   }
-
-  // void AddUpdateFunc(
-  //     {required String mchoice, var currdocID, var mtitle, var mdesc}) {
-  //   mchoice == "Add" ? '' : controllerTitle.text = mtitle;
-  //   mchoice == "Add" ? '' : controllerDesc.text = mdesc;
-  //
-  //   showModalBottomSheet(
-  //     context: context,
-  //     builder: (context) {
-  //       return Column(
-  //         mainAxisAlignment: MainAxisAlignment.start,
-  //         crossAxisAlignment: CrossAxisAlignment.end,
-  //         children: [
-  //           SizedBox(
-  //             height: 20,
-  //           ),
-  //           // Date
-  //           Padding(
-  //             padding: const EdgeInsets.all(8.0),
-  //             child: _selectedDatebool
-  //                 ? Text("${_selectedDateVal.toString()}")
-  //                 : ElevatedButton(
-  //                     child: Text("Select Date"),
-  //                     onPressed: () {
-  //                       DatePickerFunc(context);
-  //                     }),
-  //
-  //             // child: TextFormField(
-  //             //   controller: controllerTitle,
-  //             //   decoration: InputDecoration(
-  //             //       labelText: "Date",
-  //             //       border: OutlineInputBorder(
-  //             //           borderRadius: BorderRadius.circular(21))),
-  //             // ),
-  //           ),
-  //           // title
-  //           Padding(
-  //             padding: const EdgeInsets.all(8.0),
-  //             child: TextFormField(
-  //               controller: controllerTitle,
-  //               decoration: InputDecoration(
-  //                   labelText: "Title",
-  //                   border: OutlineInputBorder(
-  //                       borderRadius: BorderRadius.circular(21))),
-  //             ),
-  //           ),
-  //           // description
-  //           Padding(
-  //             padding: const EdgeInsets.all(8.0),
-  //             child: TextFormField(
-  //               controller: controllerDesc,
-  //               decoration: InputDecoration(
-  //                   labelText: "Description",
-  //                   border: OutlineInputBorder(
-  //                       borderRadius: BorderRadius.circular(21))),
-  //             ),
-  //           ),
-  //           SizedBox(
-  //             height: 10,
-  //           ),
-  //           Padding(
-  //             padding: const EdgeInsets.only(right: 20),
-  //             child: Row(
-  //               mainAxisAlignment: MainAxisAlignment.end,
-  //               children: [
-  //                 TextButton(
-  //                     onPressed: () {
-  //                       getClearTextController();
-  //                       // controllerTitle.clear();
-  //                       // controllerDesc.clear();
-  //                     },
-  //                     child: Text("Cancel")),
-  //                 TextButton(
-  //                     onPressed: () {
-  //                       mtitle = controllerTitle.text.toString();
-  //                       mdesc = controllerDesc.text.toString();
-  //
-  //                       mchoice == "Add"
-  //                           ? addFunc()
-  //                           : updateFunc(currdocID, mtitle, mdesc);
-  //                       // firestore
-  //                       //         .collection(Utilities.dbusers)
-  //                       //         .doc(fireauth.currentUser!.email)
-  //                       //         .collection(Utilities.dbnotes)
-  //                       //         .doc(currdocID)
-  //                       //         .update(NoteModel(
-  //                       //                 title: mtitle,
-  //                       //                 desc: mdesc,
-  //                       //                 time: DateTime.now()
-  //                       //                     .millisecondsSinceEpoch
-  //                       //                     .toString())
-  //                       //             .toMap());
-  //                       getClearTextController();
-  //                       // controllerTitle.clear();
-  //                       // controllerDesc.clear();
-  //                       Navigator.pop(context);
-  //                     },
-  //                     child: mchoice == "Add" ? Text("Add") : Text("Edit")),
-  //               ],
-  //             ),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -236,11 +131,9 @@ class _MyHomePageState extends State<MyHomePage> {
             builder: (context) {
               return MyAddUpdatePage(
                 mychoice: "Add",
-                userList: [],
               );
             },
           ));
-          // AddUpdateFunc(mchoice: "Add");
         },
         child: Icon(Icons.add),
         backgroundColor: Colors.blue,
@@ -274,7 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       NoteModel currModel =
                           NoteModel.fromJson(mdata[index].data());
-                      print(currModel.toMap());
+                      // print(currModel.toMap());
 
                       return Padding(
                         padding: const EdgeInsets.all(3.0),
@@ -315,17 +208,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                           docID: currDocId,
                                           mytitle: currModel.title,
                                           mydesc: currModel.desc,
-                                          userList: [],
-                                          // mypickDate: currModel.seleteDate,
+                                          myselecteduser:
+                                              currModel.selectedUser,
+                                          mypickDate: currModel.seleteDate,
                                         );
                                       },
                                     ));
-
-                                    // AddUpdateFunc(
-                                    //     mchoice: "Edit",
-                                    //     currdocID: currDocId,
-                                    //     mtitle: currModel.title,
-                                    //     mdesc: currModel.desc);
                                   },
                                 ),
                                 InkWell(
