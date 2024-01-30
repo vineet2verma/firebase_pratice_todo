@@ -41,22 +41,20 @@ class _MyDrawerState extends State<MyDrawer> {
           ),
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("Phone :"),
-
-                StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                    stream: FirebaseFirestore.instance
-                        .collection('admin')
-                        .doc(FirebaseAuth.instance.currentUser!.email)
-                        .snapshots(),
-                    builder: (context, snapshot) =>
-                        Text('${snapshot.data!.data()!['phone']}')),
-                // Text('${snapshot.data!.data()!['phone']}')),
-
-                ///
-              ],
+            child: Flexible(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Phone :"),
+                  StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                      stream: FirebaseFirestore.instance
+                          .collection('admin')
+                          .doc(FirebaseAuth.instance.currentUser!.email)
+                          .snapshots(),
+                      builder: (context, snapshot) =>
+                          Text('${snapshot.data!.data()!['PhoneNo']}')),
+                ],
+              ),
             ),
           ),
         ],

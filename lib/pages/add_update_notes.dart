@@ -13,6 +13,7 @@ class MyAddUpdatePage extends StatefulWidget {
   String? mydesc;
   String? docID;
   int? mypickDate = DateTime.now().millisecondsSinceEpoch;
+  List<String> list;
 
   MyAddUpdatePage(
       {required this.mychoice,
@@ -20,7 +21,8 @@ class MyAddUpdatePage extends StatefulWidget {
       this.mytitle,
       this.mydesc,
       this.docID,
-      this.mypickDate});
+      this.mypickDate,
+      required this.list});
 
   @override
   State<MyAddUpdatePage> createState() => _MyAddUpdatePageState();
@@ -35,18 +37,7 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
   static final controllerSelectedUser = TextEditingController();
   int? pickDate;
   bool _selectedDatebool = false;
-  List<String> list = [
-    'One',
-    'Two',
-    'Three',
-    'Four',
-    'Five',
-    'Six',
-    'Seven',
-    'Eight',
-    'Nine',
-    'Ten'
-  ];
+  // List<String> list = [ 'One', 'Two', 'Three', 'Four', 'Five'];
 
   getClearTextController() {
     controllerTitle.clear();
@@ -60,13 +51,15 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
 
   addFunc() {
     firestore
-        .collection(Utilities.dbusers)
-        .doc(fireauth.currentUser!.email)
+        .collection(Utilities.dbusers) // remove this
+        .doc(fireauth.currentUser!.email) // remove this
+
         .collection(Utilities.dbnotes)
         .add(NoteModel(
                 title: controllerTitle.text.toString(),
                 desc: controllerDesc.text.toString(),
-                selectedUser: controllerSelectedUser.text.toString(),
+                selectedUser:
+                    controllerSelectedUser.text.toString(), // taken user id
                 seleteDate: pickDate == null
                     ? DateTime.now().millisecondsSinceEpoch
                     : pickDate)
@@ -183,8 +176,8 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownMenu(
                         hintText: "Select A User",
-                        dropdownMenuEntries:
-                            list.map<DropdownMenuEntry<String>>((String value) {
+                        dropdownMenuEntries: widget.list
+                            .map<DropdownMenuEntry<String>>((String value) {
                           return DropdownMenuEntry<String>(
                               value: value, label: value);
                         }).toList(),

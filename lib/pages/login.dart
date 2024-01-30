@@ -7,6 +7,8 @@ import 'package:firebase_pratice_todo/pages/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'home_page2.dart';
+
 class MyLoginPage extends StatefulWidget {
   // const MyLoginPage({super.key});
 
@@ -58,12 +60,12 @@ class _MyLoginPageState extends State<MyLoginPage> {
                 decoration: InputDecoration(
                     labelText: "Password",
                     suffixIcon: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _passwordVisible = !_passwordVisible;
-                        });
-                      },
-                      child: Icon(Icons.remove_red_eye_rounded)),
+                        onTap: () {
+                          setState(() {
+                            _passwordVisible = !_passwordVisible;
+                          });
+                        },
+                        child: Icon(Icons.remove_red_eye_rounded)),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(21))),
               ),
@@ -90,20 +92,17 @@ class _MyLoginPageState extends State<MyLoginPage> {
 
                     Navigator.pushReplacement(context, MaterialPageRoute(
                       builder: (context) {
-                        return MyHomePage(userId: userCred.user!.uid );
+                        return MyHomePage(userId: userCred.user!.uid);
                       },
                     ));
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'user-not-found') {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  "No user found for that email.")));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("No user found for that email.")));
                     } else if (e.code == 'wrong-password') {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  "Wrong password provided for that user.")));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content:
+                              Text("Wrong password provided for that user.")));
                     }
                   }
                 },

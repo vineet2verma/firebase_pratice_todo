@@ -105,15 +105,6 @@ class _MySignUpPageState extends State<MySignUpPage> {
                       email: controllerSignUpEmail.text.toString(),
                       password: controllerSignUpPswd.text.toString());
                   var uuid = usercred.user!.email;
-                  firebase
-                      .collection(Utilities.dbusermaster)
-                      .doc(uuid)
-                      .set(SignUpModel(
-                        EmailId: controllerSignUpEmail.text.toString(),
-                        // Password: controllerSignUpPswd.text.toString(),
-                        PhoneNo: controllerSignUpPhone.text.toString(),
-                        UserName: controllerSignUpUserName.text.toString(),
-                      ).toMap());
 
                   firebase
                       .collection(Utilities.dbusers)

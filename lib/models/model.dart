@@ -19,6 +19,7 @@ class NoteModel {
   Map<String, dynamic> toMap() {
     return {
       "createdAt": createDate,
+      "assignTo": selectedUser,
       "selectedUser": selectedUser,
       "seleteDate": seleteDate, // seleteDate,
       "title": title,
