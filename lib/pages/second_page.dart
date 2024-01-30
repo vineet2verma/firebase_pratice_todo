@@ -31,6 +31,7 @@ class MySecondPage extends StatefulWidget {
 }
 
 String? profilePicUrl;
+List<String>? imageUrllist;
 
 class _MySecondPageState extends State<MySecondPage> {
   dateFormatFunc(seldataIntVal) {
@@ -157,16 +158,22 @@ class _MySecondPageState extends State<MySecondPage> {
   }
 
   uploadFunc(CropFilePath) {
-    final storage = firebaseStorage.ref();
     var currTime = DateTime.now().millisecondsSinceEpoch;
+    final storage = firebaseStorage.ref();
 
     //   FOLDER
     final storageRef = storage.child("image/profilepic/Image_$currTime.jpg");
-
     try {
       storageRef.putFile(CropFilePath).then((value) async {
-        print(value);
         var imageUrl = await value.ref.getDownloadURL();
+        firestore
+            .collection("users")
+            .doc("admin@abc.com")
+            .collection("images")
+            .add({
+          "imageUrl": imageUrl,
+          "uploadAt": DateTime.now().millisecondsSinceEpoch
+        });
       });
     } on FirebaseException catch (e) {
       print("Error Uploading {e}");
@@ -205,8 +212,23 @@ class _MySecondPageState extends State<MySecondPage> {
       setState(() {});
     }
     if (pickImage != null) {
-      uploadFunc(File(pickImage.path));
+      uploadFunc(File(cropImage!.path));
     }
+  }
+
+  getImageUrllist() {
+    FirebaseFirestore.instance
+        .collection(Utilities.dbusers)
+        .doc('admin@abc.com')
+        .collection('images')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        // print(doc["name"]);
+        imageUrllist!.add(doc['imageUrl']);
+        // selectedChiplist.add(doc['UserName']);
+      });
+    });
   }
 
   @override
@@ -233,10 +255,11 @@ class _MySecondPageState extends State<MySecondPage> {
                   Container(
                     height: 150,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(21),
-                      color: Colors.blueAccent.shade400,
-                    ),
+                    // child: Image.network(imageUrllist![0]),
+                    // decoration: BoxDecoration(
+                    //   borderRadius: BorderRadius.circular(21),
+                    //   color: Colors.blueAccent.shade400,
+                    // ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
