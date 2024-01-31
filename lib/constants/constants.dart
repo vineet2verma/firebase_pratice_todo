@@ -21,7 +21,7 @@ class Utilities {
 
   static String dbusers = "users";
   static String dbnotes = "notes";
-  static String dbusermaster = "admin";
+  static String dbuseradmin = "admin";
 
   // Colors
   static Color bgcolor = Colors.blueAccent;

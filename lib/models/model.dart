@@ -7,23 +7,25 @@ class NoteModel {
   String title;
   String desc;
   int? seleteDate;
+  String? status;
 
   NoteModel(
       {required this.selectedUser,
       required this.title,
       required this.desc,
-      this.seleteDate});
+      this.seleteDate,
+      this.status});
 
   var createDate = DateFormat('yyyy-MM-dd – HH:mm:ss').format(DateTime.now());
 
   Map<String, dynamic> toMap() {
     return {
       "createdAt": createDate,
-      "assignTo": selectedUser,
-      "selectedUser": selectedUser,
       "seleteDate": seleteDate, // seleteDate,
+      "assignTo": selectedUser,
       "title": title,
-      "desc": desc
+      "desc": desc,
+      "status": "Pending"
     };
   }
 
@@ -32,7 +34,8 @@ class NoteModel {
         seleteDate: json['seleteDate'],
         selectedUser: json['selectedUser'],
         title: json['title'],
-        desc: json['desc']);
+        desc: json['desc'],
+        status: json['status']);
   }
 }
 

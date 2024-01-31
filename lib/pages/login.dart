@@ -1,13 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_pratice_todo/constants/constants.dart';
 import 'package:firebase_pratice_todo/pages/home_page.dart';
 import 'package:firebase_pratice_todo/pages/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'home_page2.dart';
 
 class MyLoginPage extends StatefulWidget {
   // const MyLoginPage({super.key});
@@ -85,7 +81,11 @@ class _MyLoginPageState extends State<MyLoginPage> {
                   var auth = FirebaseAuth.instance;
                   try {
                     var userCred = await auth.signInWithEmailAndPassword(
-                        email: controllerLoginEmail.text.toString(),
+                        email: controllerLoginEmail.text
+                                .toString()
+                                .contains("@")
+                            ? controllerLoginEmail.text.toString()
+                            : controllerLoginEmail.text.toString() + "@abc.com",
                         password: controllerLoginPswd.text.toString());
                     var pref = await SharedPreferences.getInstance();
                     pref.setString(Utilities.loginpref, userCred.user!.uid);

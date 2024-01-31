@@ -37,7 +37,7 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
   static final controllerSelectedUser = TextEditingController();
   int? pickDate;
   bool _selectedDatebool = false;
-  // List<String> list = [ 'One', 'Two', 'Three', 'Four', 'Five'];
+  String? userMailId;
 
   getClearTextController() {
     controllerTitle.clear();
@@ -49,11 +49,30 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
     return _selectedDatebool = true;
   }
 
+  getUserMailId(userId) {
+    if (userId == "user1") {
+      return userMailId = "user1@abc.com";
+    }
+    if (userId == "user2") {
+      return userMailId = "user2@abc.com";
+    }
+    if (userId == "user3") {
+      return userMailId = "user3@abc.com";
+    }
+    if (userId == "user4") {
+      return userMailId = "user4@abc.com";
+    }
+    if (userId == "user5") {
+      return userMailId = "user5@abc.com";
+    } else
+      return userMailId = "admin@abc.com";
+  }
+
   addFunc() {
     firestore
         .collection(Utilities.dbusers) // remove this
-        .doc(fireauth.currentUser!.email) // remove this
-
+        .doc(getUserMailId(
+            controllerSelectedUser.text.toString())) // remove this
         .collection(Utilities.dbnotes)
         .add(NoteModel(
                 title: controllerTitle.text.toString(),
@@ -69,7 +88,6 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
         .catchError((e) {
       return print("Error : $e");
     });
-
     Navigator.pop(context);
   }
 
@@ -175,7 +193,7 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
                   Flexible(
                     child: DropdownButtonHideUnderline(
                       child: DropdownMenu(
-                        hintText: "Select A User",
+                        hintText: "Assign To..",
                         dropdownMenuEntries: widget.list
                             .map<DropdownMenuEntry<String>>((String value) {
                           return DropdownMenuEntry<String>(

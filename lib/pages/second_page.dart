@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_pratice_todo/constants/constants.dart';
+import 'package:firebase_pratice_todo/pages/home_page.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -17,6 +18,7 @@ class MySecondPage extends StatefulWidget {
   String mydesc;
   String? myselecteduser;
   int? mypickDate;
+  List? imagelist;
 
   MySecondPage(
       {required this.myTaskType,
@@ -24,14 +26,14 @@ class MySecondPage extends StatefulWidget {
       required this.mytitle,
       required this.mydesc,
       required this.myselecteduser,
-      required this.mypickDate});
+      required this.mypickDate,
+      this.imagelist});
 
   @override
   State<MySecondPage> createState() => _MySecondPageState();
 }
 
 String? profilePicUrl;
-List<String>? imageUrllist;
 
 class _MySecondPageState extends State<MySecondPage> {
   dateFormatFunc(seldataIntVal) {
@@ -47,61 +49,6 @@ class _MySecondPageState extends State<MySecondPage> {
   late FirebaseStorage firebaseStorage;
   CroppedFile? cropImage;
 
-  void radioButton() {
-    // RadioListTile(
-    //   title: Text("Done"),
-    //   value: "Done",
-    //   groupValue: radioStatus,
-    //   onChanged: (value) {
-    //     setState(() {
-    //       radioStatus = value.toString();
-    //       print(radioStatus);
-    //     });
-    //   },
-    // ),
-    // RadioListTile(
-    //   title: Text("Not Done"),
-    //   value: "Not Done",
-    //   groupValue: radioStatus,
-    //   onChanged: (value) {
-    //     setState(() {
-    //       radioStatus = value.toString();
-    //       print(radioStatus);
-    //     });
-    //   },
-    // ),
-  }
-
-  AlertDialog radioMenuFunc(BuildContext context) {
-    return AlertDialog(
-      title: Text("Status"),
-      actions: [
-        RadioListTile(
-          title: Text("Done"),
-          value: "Done",
-          groupValue: radioStatus,
-          onChanged: (value) {
-            setState(() {
-              radioStatus = value.toString();
-              print(radioStatus);
-            });
-          },
-        ),
-        RadioListTile(
-          title: Text("Not Done"),
-          value: "Not Done",
-          groupValue: radioStatus,
-          onChanged: (value) {
-            setState(() {
-              radioStatus = value.toString();
-              print(radioStatus);
-            });
-          },
-        ),
-      ],
-    );
-  }
-
   Future<void> _showSimpleDialog() async {
     await showDialog<void>(
         context: context,
@@ -112,11 +59,11 @@ class _MySecondPageState extends State<MySecondPage> {
             children: <Widget>[
               SimpleDialogOption(
                 onPressed: () {
-                  radioStatus = "Done";
+                  radioStatus = "Completed";
                   firestoreUpdate();
                   Navigator.of(context).pop();
                 },
-                child: const Text('Done ',
+                child: const Text('Completed',
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -124,29 +71,16 @@ class _MySecondPageState extends State<MySecondPage> {
               ),
               SimpleDialogOption(
                 onPressed: () {
-                  radioStatus = "Not Done";
+                  radioStatus = "Pending";
                   firestoreUpdate();
                   Navigator.of(context).pop();
                 },
-                child: const Text('Not Done'),
+                child: const Text('Pending'),
               ),
               TextField()
             ],
           );
         });
-  }
-
-  void firestoreUpdate() {
-    firestore
-        .collection(Utilities.dbusers)
-        .doc(fireauth.currentUser?.email.toString())
-        .collection(Utilities.dbnotes)
-        .doc(widget.docID)
-        .update({
-      "task 1 status": radioStatus.toString(),
-      "task 1 date": DateTime.now()
-    });
-    // Navigator.pop(context);
   }
 
   @override
@@ -155,6 +89,17 @@ class _MySecondPageState extends State<MySecondPage> {
     firestore = FirebaseFirestore.instance;
     fireauth = FirebaseAuth.instance;
     firebaseStorage = FirebaseStorage.instance;
+  }
+
+  void firestoreUpdate() {
+    firestore
+        .collection(Utilities.dbusers)
+        .doc(fireauth.currentUser?.email.toString())
+        .collection(Utilities.dbnotes)
+        .doc(widget.docID)
+        .update(
+            {"status": radioStatus.toString(), "status date": DateTime.now()});
+    // Navigator.pop(context);
   }
 
   uploadFunc(CropFilePath) {
@@ -216,20 +161,8 @@ class _MySecondPageState extends State<MySecondPage> {
     }
   }
 
-  getImageUrllist() {
-    FirebaseFirestore.instance
-        .collection(Utilities.dbusers)
-        .doc('admin@abc.com')
-        .collection('images')
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        // print(doc["name"]);
-        imageUrllist!.add(doc['imageUrl']);
-        // selectedChiplist.add(doc['UserName']);
-      });
-    });
-  }
+  // var imagefile =
+  //     "https://firebasestorage.googleapis.com/v0/b/fir-pratice-app-4e5ae.appspot.com/o/image%2Fprofilepic%2FImage_1706636209587.jpg?alt=media&token=48391c9a-e641-4277-a778-bcb04a44d83b";
 
   @override
   Widget build(BuildContext context) {
@@ -253,23 +186,40 @@ class _MySecondPageState extends State<MySecondPage> {
               Column(
                 children: [
                   Container(
-                    height: 150,
+                    height: 200,
                     width: double.infinity,
-                    // child: Image.network(imageUrllist![0]),
-                    // decoration: BoxDecoration(
-                    //   borderRadius: BorderRadius.circular(21),
-                    //   color: Colors.blueAccent.shade400,
-                    // ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Image.network(widget.imagelist![0]),
+
+                        // Expanded(
+                        //   // Center(child: Text("Select Image"))
+                        // ),
+                        // Padding(
+                        //   padding: const EdgeInsets.only(bottom: 3),
+                        //   child: ElevatedButton(
+                        //       onPressed: () {
+                        //         print("Camera");
+                        //         openImagePicker();
+                        //       },
+                        //       child: Text("Image Added")),
+                        // ),
+                      ],
+                    ),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(21),
+                        border: Border.all(color: Colors.black, width: 2)),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                        onPressed: () {
-                          print("Camera");
-                          openImagePicker();
-                        },
-                        child: Text("Image Added")),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.all(8.0),
+                  //   child: ElevatedButton(
+                  //       onPressed: () {
+                  //         print("Camera");
+                  //         openImagePicker();
+                  //       },
+                  //       child: Text("Image Added")),
+                  // ),
                 ],
               ),
               SizedBox(

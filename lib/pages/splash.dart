@@ -5,8 +5,6 @@ import 'package:firebase_pratice_todo/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'home_page2.dart';
-
 class MySplashPage extends StatefulWidget {
   // const MySplashPage({super.key});
 
