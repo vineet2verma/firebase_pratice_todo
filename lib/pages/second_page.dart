@@ -4,12 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_pratice_todo/constants/constants.dart';
-import 'package:firebase_pratice_todo/pages/home_page.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MySecondPage extends StatefulWidget {
   String? myTaskType;
@@ -161,9 +161,6 @@ class _MySecondPageState extends State<MySecondPage> {
     }
   }
 
-  // var imagefile =
-  //     "https://firebasestorage.googleapis.com/v0/b/fir-pratice-app-4e5ae.appspot.com/o/image%2Fprofilepic%2FImage_1706636209587.jpg?alt=media&token=48391c9a-e641-4277-a778-bcb04a44d83b";
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,103 +170,94 @@ class _MySecondPageState extends State<MySecondPage> {
         centerTitle: true,
         backgroundColor: Utilities.bgcolor,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 10,
-              ),
-              Column(
-                children: [
-                  Container(
-                    height: 200,
-                    width: double.infinity,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Image.network(widget.imagelist![0]),
-
-                        // Expanded(
-                        //   // Center(child: Text("Select Image"))
-                        // ),
-                        // Padding(
-                        //   padding: const EdgeInsets.only(bottom: 3),
-                        //   child: ElevatedButton(
-                        //       onPressed: () {
-                        //         print("Camera");
-                        //         openImagePicker();
-                        //       },
-                        //       child: Text("Image Added")),
-                        // ),
-                      ],
-                    ),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(21),
-                        border: Border.all(color: Colors.black, width: 2)),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 1,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.imagelist!.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: EdgeInsets.symmetric(horizontal: 4),
+                  width: 300,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: Colors.grey,
+                    image: DecorationImage(
+                        image: NetworkImage(widget
+                            .imagelist![index]), //myimagefilelist[index]),
+                        fit: BoxFit.fill),
+                    borderRadius: BorderRadius.circular(21),
                   ),
-                  // Padding(
-                  //   padding: const EdgeInsets.all(8.0),
-                  //   child: ElevatedButton(
-                  //       onPressed: () {
-                  //         print("Camera");
-                  //         openImagePicker();
-                  //       },
-                  //       child: Text("Image Added")),
-                  // ),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                );
+              },
+            ),
+          ),
+
+          Expanded(
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Title : => ",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text("Date : ${dateFormatFunc(widget.mypickDate)}",
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 3),
+                    child: ElevatedButton(
+                        onPressed: () {
+                          print("Camera");
+                          openImagePicker();
+                        },
+                        child: Text("Image Added")),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Title : => ",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text("Date : ${dateFormatFunc(widget.mypickDate)}",
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Text("\n${widget.mytitle}",
                       style:
                           TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  Row(
+                    children: [
+                      Text("Detail : => ",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Text(
+                    "\n${widget.mydesc}",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.greenAccent,
+                          minimumSize: Size(double.infinity, 50),
+                        ),
+                        onPressed: () {
+                          _showSimpleDialog();
+                        },
+                        child: Text("Update << Task 1 >> Status ")),
+                  ),
                 ],
               ),
-              Text(
-                "${widget.mytitle}",
-                style: TextStyle(fontSize: 21),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Text("Detail : => ",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Text(
-                "${widget.mydesc}",
-                style: TextStyle(fontSize: 16),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-
-              SizedBox(
-                height: 10,
-              ),
-              ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent,
-                    minimumSize: Size(double.infinity, 50),
-                  ),
-                  onPressed: () {
-                    _showSimpleDialog();
-                  },
-                  child: Text("Update << Task 1 >> Status ")),
-
-              //
-            ],
+            ),
           ),
-        ),
+
+          //
+        ],
       ),
     );
   }

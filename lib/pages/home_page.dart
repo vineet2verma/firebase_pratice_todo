@@ -8,6 +8,7 @@ import 'package:firebase_pratice_todo/pages/drawer.dart';
 import 'package:firebase_pratice_todo/pages/second_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login.dart';
@@ -31,6 +32,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String? _selectedDateVal;
   // chip
   bool isSelected = false;
+  final bool checkAdmin = true;
+
   List<String> selectedChiplist = ['all'];
   // search
   bool searchBool = false;
@@ -119,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
           /// Selection Chip
           Flexible(
             child: Container(
-              height: 10,
+              height: 10.h,
               width: double.infinity,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -156,6 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
 
           /// Project Task
+
           Expanded(
             flex: 4,
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -198,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(21),
                                     side: BorderSide(
-                                      width: 2,
+                                      width: 2.w,
                                     )),
                                 title: Text(currModel.title,
                                     style:
@@ -234,91 +238,80 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ));
                                 },
                                 // Add & Edit & Cancel Button
-                                trailing: fireauth.currentUser?.email ==
-                                        "admin@abc.com"
-                                    ? SizedBox(
-                                        width: 100,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceAround,
-                                          children: [
-                                            InkWell(
-                                              child: Icon(
-                                                Icons.edit,
-                                                size: 31,
-                                                color:
-                                                    CupertinoColors.activeGreen,
-                                              ),
-                                              onTap: () {
-                                                Navigator.push(context,
-                                                    MaterialPageRoute(
-                                                  builder: (context) {
-                                                    return MyAddUpdatePage(
-                                                      mychoice: "Update",
-                                                      docID: currDocId,
-                                                      mytitle: currModel.title,
-                                                      mydesc: currModel.desc,
-                                                      myselecteduser: currModel
-                                                          .selectedUser,
-                                                      mypickDate:
-                                                          currModel.seleteDate,
-                                                      list: usernamelist,
-                                                    );
-                                                  },
-                                                ));
-                                              },
-                                            ),
-                                            InkWell(
-                                              child: Icon(Icons.delete,
-                                                  size: 31, color: Colors.red),
-                                              onTap: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return AlertDialog(
-                                                      title:
-                                                          Text("Confirmation"),
-                                                      actions: [
-                                                        TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child:
-                                                                Text("Cancel")),
-                                                        TextButton(
-                                                            onPressed: () {
-                                                              firestore
-                                                                  .collection(
-                                                                      Utilities
-                                                                          .dbusers)
-                                                                  .doc(fireauth
-                                                                      .currentUser!
-                                                                      .email)
-                                                                  .collection(
-                                                                      Utilities
-                                                                          .dbnotes)
-                                                                  .doc(snapshot
-                                                                      .data!
-                                                                      .docs[
-                                                                          index]
-                                                                      .id)
-                                                                  .delete();
-                                                              Navigator.pop(
-                                                                  context);
-                                                            },
-                                                            child: Text(
-                                                                "Confirm")),
-                                                      ],
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : null,
+                                trailing: PopupMenuButton(
+                                  onSelected: (value) {
+                                    setState(() {
+                                      if (value == "Edit") {
+                                        //   edit
+                                        Navigator.push(context,
+                                            MaterialPageRoute(
+                                          builder: (context) {
+                                            return MyAddUpdatePage(
+                                              mychoice: "Update",
+                                              docID: currDocId,
+                                              mytitle: currModel.title,
+                                              mydesc: currModel.desc,
+                                              myselecteduser:
+                                                  currModel.selectedUser,
+                                              mypickDate: currModel.seleteDate,
+                                              list: usernamelist,
+                                            );
+                                          },
+                                        ));
+                                      } // edit end
+                                      else {
+                                        //   delete
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                  title: Text("Confirmation"),
+                                                  actions: [
+                                                    TextButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: Text("Cancel")),
+                                                    TextButton(
+                                                        child: Text("Confirm"),
+                                                        onPressed: () {
+                                                          firestore
+                                                              .collection(
+                                                                  Utilities
+                                                                      .dbusers)
+                                                              .doc(fireauth
+                                                                  .currentUser!
+                                                                  .email)
+                                                              .collection(
+                                                                  Utilities
+                                                                      .dbnotes)
+                                                              .doc(snapshot
+                                                                  .data!
+                                                                  .docs[index]
+                                                                  .id)
+                                                              .delete();
+                                                          Navigator.pop(
+                                                              context);
+                                                        })
+                                                  ]);
+                                            });
+                                      } // delete end
+                                    });
+                                  },
+                                  itemBuilder: (BuildContext bc) {
+                                    return const [
+                                      PopupMenuItem(
+                                        child: Text("Edit"),
+                                        value: 'Edit',
+                                      ),
+                                      PopupMenuItem(
+                                        child: Text("Delete"),
+                                        value: 'Delete',
+                                      ),
+                                    ];
+                                  },
+                                ),
                               ),
                             );
                           },
@@ -356,12 +349,8 @@ class _MyHomePageState extends State<MyHomePage> {
         .get()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
-        // print(doc["imageUrl"]);
         widget.imageUrlList.add(doc["imageUrl"]);
-        print(widget.imageUrlList);
-        setState(() {
-          print(widget.imageUrlList.length);
-        });
+        setState(() {});
       });
     });
 
