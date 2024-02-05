@@ -9,12 +9,13 @@ class NoteModel {
   int? seleteDate;
   String? status;
 
-  NoteModel(
-      {required this.selectedUser,
-      required this.title,
-      required this.desc,
-      this.seleteDate,
-      this.status});
+  NoteModel({
+    required this.selectedUser,
+    required this.title,
+    required this.desc,
+    this.seleteDate,
+    this.status,
+  });
 
   var createDate = DateFormat('yyyy-MM-dd – HH:mm:ss').format(DateTime.now());
 
@@ -30,12 +31,33 @@ class NoteModel {
   }
 
   factory NoteModel.fromJson(Map<String, dynamic> json) {
+    // List<ImageModel> listImages = [];
+    // for (Map<String, dynamic> eachMap in json['images']) {
+    //   listImages.add(ImageModel.fromJson(eachMap));
+    // }
+
     return NoteModel(
         seleteDate: json['seleteDate'],
-        selectedUser: json['selectedUser'],
+        selectedUser: json['assignTo'],
         title: json['title'],
         desc: json['desc'],
         status: json['status']);
+  }
+}
+
+class ImageModel {
+  num? imageUploadAt;
+  String? imageUrl;
+
+  ImageModel({required this.imageUploadAt, required this.imageUrl});
+
+  Map<String, dynamic> toMap() {
+    return {"imageUploadAt": imageUploadAt, "imageUrl": imageUrl};
+  }
+
+  factory ImageModel.fromJson(Map<String, dynamic> json) {
+    return ImageModel(
+        imageUploadAt: json['imageUploadAt'], imageUrl: json['imageUrl']);
   }
 }
 

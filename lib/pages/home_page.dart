@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_pratice_todo/constants/constants.dart';
 import 'package:firebase_pratice_todo/models/model.dart';
 import 'package:firebase_pratice_todo/pages/add_update_notes.dart';
@@ -25,8 +27,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late FirebaseFirestore firestore;
   late FirebaseAuth fireauth;
+
   // user name list
   List<String> usernamelist = [];
+  List<String> usernamefilterlist = ['admin'];
+
   // date
   bool _selectedDatebool = false;
   String? _selectedDateVal;
@@ -42,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    print("=>   ${usernamefilterlist}");
     return Scaffold(
       backgroundColor: Utilities.bgcolor,
       appBar: AppBar(
@@ -126,48 +132,20 @@ class _MyHomePageState extends State<MyHomePage> {
               width: double.infinity,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                // child: Padding(
-                //   padding: const EdgeInsets.all(8.0),
-                //   child: Row(
-                //     children: <Widget>[
-                //
-                //       for (var item in usernamelist)
-                //         Padding(
-                //           padding: const EdgeInsets.only(right: 1.0, left: 1),
-                //           child: ChoiceChip(
-                //             label: Text("${item}"),
-                //             selected: isSelected,
-                //             onSelected: (value) {
-                //               setState(() {
-                //                 // if (selectedChiplist.contains(item)) {
-                //                 //   selectedChiplist.remove(item);
-                //                 // } else {
-                //                 //   selectedChiplist.add(item);
-                //                 // }
-                //                 // ScaffoldMessenger.of(context).showSnackBar(
-                //                 //     SnackBar(
-                //                 //         content: Text("Selected : ${item}")));
-                //               });
-                //             },
-                //           ),
-                //         ),
-                //     ],
-                //   ),
-                // ),
               ),
             ),
           ),
 
           /// Project Task
 
+          // raunak.educator@gmail.com
           Expanded(
             flex: 4,
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
               stream: firestore
-                  .collection(Utilities.dbusers)
-                  .doc(fireauth.currentUser!.email)
-                  .collection(Utilities.dbnotes)
-                  // .where("selectedUser", whereIn: selectedChiplist)
+                  .collection(Utilities.dbtasks)
+                  .where("assignTo", whereIn: usernamefilterlist)
+                  // .orderBy("seleteDate", descending: false)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -187,23 +165,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
                             NoteModel currModel =
                                 NoteModel.fromJson(mdata[index].data());
-                            // print(currModel.toMap());
                             var leftdays = DateTime.now()
                                 .difference(DateTime.fromMillisecondsSinceEpoch(
                                     currModel.seleteDate!.toInt()))
                                 .inDays;
+                            print(currModel.toMap());
 
-                            return Padding(
-                              padding: const EdgeInsets.all(3.0),
+                            return Card(
+                              elevation: 25,
                               child: ListTile(
-                                tileColor: currModel.status == "Pending"
-                                    ? Colors.amber[400]
-                                    : Colors.lightGreen[300],
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(21),
-                                    side: BorderSide(
-                                      width: 2.w,
-                                    )),
                                 title: Text(currModel.title,
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold)),
@@ -279,13 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                           firestore
                                                               .collection(
                                                                   Utilities
-                                                                      .dbusers)
-                                                              .doc(fireauth
-                                                                  .currentUser!
-                                                                  .email)
-                                                              .collection(
-                                                                  Utilities
-                                                                      .dbnotes)
+                                                                      .dbtasks)
                                                               .doc(snapshot
                                                                   .data!
                                                                   .docs[index]
@@ -333,7 +297,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    super.initState();
     firestore = FirebaseFirestore.instance;
     fireauth = FirebaseAuth.instance;
     getusernamelist();
@@ -343,14 +306,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   getImageUrllist() {
     FirebaseFirestore.instance
-        .collection(Utilities.dbusers)
-        .doc(fireauth.currentUser!.email)
+        .collection(Utilities.dbtasks)
+        .doc()
         .collection('images')
         .get()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
         widget.imageUrlList.add(doc["imageUrl"]);
-        setState(() {});
+        setState(() {
+          print(widget.imageUrlList.length);
+        });
       });
     });
 
@@ -370,15 +335,29 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   getusernamelist() {
-    FirebaseFirestore.instance
-        .collection(Utilities.dbusers)
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        // print(doc["name"]);
-        usernamelist.add(doc['UserName']);
-        selectedChiplist.add(doc['UserName']);
+    // var firebase = FirebaseFirestore.instance;
+    var _userEmailid = fireauth.currentUser!.email.toString();
+    if (_userEmailid.contains("admin")) {
+      firestore
+          .collection(Utilities.dbusers)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+          usernamelist.add(doc['UserName']);
+          usernamefilterlist.add(doc['UserName']);
+        });
       });
-    });
+    } else {
+      firestore
+          .collection(Utilities.dbusers)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+          usernamelist.add(doc['UserName']);
+          usernamefilterlist.clear();
+          usernamefilterlist.add(_userEmailid.split("@")[0].toString());
+        });
+      });
+    }
   }
 }

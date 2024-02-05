@@ -2,9 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import '../constants/constants.dart';
 import '../models/model.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
 
 class MyAddUpdatePage extends StatefulWidget {
   String mychoice;
@@ -70,10 +71,7 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
 
   addFunc() {
     firestore
-        .collection(Utilities.dbusers) // remove this
-        .doc(getUserMailId(
-            controllerSelectedUser.text.toString())) // remove this
-        .collection(Utilities.dbnotes)
+        .collection(Utilities.dbtasks) // remove this
         .add(NoteModel(
                 title: controllerTitle.text.toString(),
                 desc: controllerDesc.text.toString(),
@@ -96,10 +94,8 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
         .format(DateTime.fromMillisecondsSinceEpoch(pickDate!))
         .toString());
     firestore
-        .collection(Utilities.dbusers)
-        .doc(fireauth.currentUser!.email)
-        .collection(Utilities.dbnotes)
-        .doc(currdocID)
+        .collection(Utilities.dbtasks)
+        .doc(widget.docID)
         .update(NoteModel(
                 selectedUser: controllerSelectedUser.text.toString(),
                 title: controllerTitle.text.toString(),
@@ -129,8 +125,6 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     firestore = FirebaseFirestore.instance;
     fireauth = FirebaseAuth.instance;
     addAndUpdateFunc();
@@ -169,7 +163,7 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
                 children: [
                   SizedBox(
                     height: 50,
-                    width: 150,
+                    width: 225,
                     child: ElevatedButton(
                         child: _selectedDatebool
                             ? Text(
@@ -194,6 +188,8 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
                     child: DropdownButtonHideUnderline(
                       child: DropdownMenu(
                         hintText: "Assign To..",
+                        initialSelection: widget.myselecteduser,
+                        textStyle: TextStyle(color: Colors.black),
                         dropdownMenuEntries: widget.list
                             .map<DropdownMenuEntry<String>>((String value) {
                           return DropdownMenuEntry<String>(
@@ -216,6 +212,7 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: controllerTitle,
+                style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                     labelText: "Title",
                     border: OutlineInputBorder(
@@ -227,6 +224,7 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
               padding: const EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: controllerDesc,
+                style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                     labelText: "Description",
                     border: OutlineInputBorder(

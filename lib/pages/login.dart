@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_pratice_todo/constants/constants.dart';
+import 'package:firebase_pratice_todo/models/custom_Button.dart';
 import 'package:firebase_pratice_todo/pages/home_page.dart';
 import 'package:firebase_pratice_todo/pages/signup.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
               ),
               TextFormField(
                 controller: controllerLoginEmail,
+                style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                     labelText: "Email id",
                     border: OutlineInputBorder(
@@ -53,6 +55,7 @@ class _MyLoginPageState extends State<MyLoginPage> {
               TextFormField(
                 controller: controllerLoginPswd,
                 obscureText: _passwordVisible,
+                style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                     labelText: "Password",
                     suffixIcon: InkWell(
