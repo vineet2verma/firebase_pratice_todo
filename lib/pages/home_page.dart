@@ -38,16 +38,17 @@ class _MyHomePageState extends State<MyHomePage> {
   // chip
   bool isSelected = false;
   final bool checkAdmin = true;
-
   List<String> selectedChiplist = ['all'];
+
   // search
   bool searchBool = false;
   TextEditingController controllerSearch = TextEditingController();
-  // Images
+  // filter Data In List
 
   @override
   Widget build(BuildContext context) {
-    print("=>   ${usernamefilterlist}");
+    // print("=>   ${usernamefilterlist}");
+
     return Scaffold(
       backgroundColor: Utilities.bgcolor,
       appBar: AppBar(
@@ -57,7 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   onChanged: (value) {
-                    searchFunc(value);
+                    initState();
+                    // searchFunc(value);
                   },
                   controller: controllerSearch,
                   decoration: InputDecoration(
@@ -123,174 +125,162 @@ class _MyHomePageState extends State<MyHomePage> {
               backgroundColor: Colors.blue,
             ),
 
-      body: Column(
-        children: [
-          /// Selection Chip
-          Flexible(
-            child: Container(
-              height: 10.h,
-              width: double.infinity,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-              ),
-            ),
-          ),
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: firestore
+            .collection(Utilities.dbtasks)
+            .where("assignTo", whereIn: usernamefilterlist)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text("Check The Error"));
+          }
+          if (snapshot.hasData) {
+            var mdata = snapshot.data!.docs;
 
-          /// Project Task
+            return mdata.isNotEmpty
+                ? ListView.builder(
+                    itemCount: mdata.length,
+                    itemBuilder: (context, index) {
+                      var currDocId = mdata[index].id;
 
-          // raunak.educator@gmail.com
-          Expanded(
-            flex: 4,
-            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: firestore
-                  .collection(Utilities.dbtasks)
-                  .where("assignTo", whereIn: usernamefilterlist)
-                  // .orderBy("seleteDate", descending: false)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text("Check The Error"));
-                }
-                if (snapshot.hasData) {
-                  var mdata = snapshot.data!.docs;
+                      NoteModel currModel =
+                          NoteModel.fromJson(mdata[index].data());
 
-                  return mdata.isNotEmpty
-                      ? ListView.builder(
-                          itemCount: mdata.length,
-                          itemBuilder: (context, index) {
-                            var currDocId = mdata[index].id;
+                      var leftdays = DateTime.now()
+                          .difference(DateTime.fromMillisecondsSinceEpoch(
+                              currModel.seleteDate!.toInt()))
+                          .inDays;
 
-                            NoteModel currModel =
-                                NoteModel.fromJson(mdata[index].data());
-                            var leftdays = DateTime.now()
-                                .difference(DateTime.fromMillisecondsSinceEpoch(
-                                    currModel.seleteDate!.toInt()))
-                                .inDays;
-                            print(currModel.toMap());
+                      // print(currModel.toMap()['status']);
 
-                            return Card(
-                              elevation: 25,
-                              child: ListTile(
-                                title: Text(currModel.title,
+                      // for (var mydata in mdata) {
+                      //   final alldata = mydata.data();
+                      //
+                      //   final mydoers = alldata['assignTo'];
+                      //   final mytask = alldata['desc'];
+                      //   final mystatus = alldata['status'];
+                      //   final mytitle = alldata['title'];
+                      // }
+                      return ExpansionTile(
+                        backgroundColor: currModel.status == "Pending"
+                            ? Colors.deepOrange[500]
+                            : Colors.green,
+                        initiallyExpanded:
+                            currModel.status == "Pending" ? true : false,
+                        title: Text(currModel.status.toString()),
+                        children: [
+                          ListTile(
+                            leading: Text(currModel.selectedUser.toString()),
+                            title: Text(currModel.title,
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("${currModel.desc}  \n${currModel.status}",
                                     style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                        TextStyle(fontWeight: FontWeight.w600),
+                                    softWrap: true),
+                                Row(
                                   children: [
-                                    Text("${currModel.desc}",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600),
-                                        softWrap: true),
-                                    Row(
-                                      children: [
-                                        Text(
-                                            "Date : ${dateFormatFunc(currModel.seleteDate)} \t Days Left: ${leftdays}"),
-                                      ],
-                                    ),
+                                    Text(
+                                        "Date : ${dateFormatFunc(currModel.seleteDate)} \t Days Left: ${leftdays}"),
                                   ],
                                 ),
-                                onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) {
-                                      return MySecondPage(
-                                        myTaskType: "taskUser1",
-                                        docID: currDocId,
-                                        mytitle: currModel.title,
-                                        mydesc: currModel.desc,
-                                        myselecteduser: currModel.selectedUser,
-                                        mypickDate: currModel.seleteDate,
-                                        imagelist: widget.imageUrlList,
-                                      );
-                                    },
-                                  ));
+                              ],
+                            ),
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (context) {
+                                  return MySecondPage(
+                                    myTaskType: "taskUser1",
+                                    docID: currDocId,
+                                    mytitle: currModel.title,
+                                    mydesc: currModel.desc,
+                                    myselecteduser: currModel.selectedUser,
+                                    mypickDate: currModel.seleteDate,
+                                    imagelist: widget.imageUrlList,
+                                  );
                                 },
-                                // Add & Edit & Cancel Button
-                                trailing: PopupMenuButton(
-                                  onSelected: (value) {
-                                    setState(() {
-                                      if (value == "Edit") {
-                                        //   edit
-                                        Navigator.push(context,
-                                            MaterialPageRoute(
-                                          builder: (context) {
-                                            return MyAddUpdatePage(
-                                              mychoice: "Update",
-                                              docID: currDocId,
-                                              mytitle: currModel.title,
-                                              mydesc: currModel.desc,
-                                              myselecteduser:
-                                                  currModel.selectedUser,
-                                              mypickDate: currModel.seleteDate,
-                                              list: usernamelist,
-                                            );
-                                          },
-                                        ));
-                                      } // edit end
-                                      else {
-                                        //   delete
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AlertDialog(
-                                                  title: Text("Confirmation"),
-                                                  actions: [
-                                                    TextButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        child: Text("Cancel")),
-                                                    TextButton(
-                                                        child: Text("Confirm"),
-                                                        onPressed: () {
-                                                          firestore
-                                                              .collection(
-                                                                  Utilities
-                                                                      .dbtasks)
-                                                              .doc(snapshot
-                                                                  .data!
-                                                                  .docs[index]
-                                                                  .id)
-                                                              .delete();
-                                                          Navigator.pop(
-                                                              context);
-                                                        })
-                                                  ]);
-                                            });
-                                      } // delete end
-                                    });
-                                  },
-                                  itemBuilder: (BuildContext bc) {
-                                    return const [
-                                      PopupMenuItem(
-                                        child: Text("Edit"),
-                                        value: 'Edit',
-                                      ),
-                                      PopupMenuItem(
-                                        child: Text("Delete"),
-                                        value: 'Delete',
-                                      ),
-                                    ];
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        )
-                      : Center(
-                          child: Text("No Data!!!"),
-                        );
-                }
+                              ));
+                            },
+                            // Add & Edit & Cancel Button
+                            trailing: PopupMenuButton(
+                              onSelected: (value) {
+                                setState(() {
+                                  if (value == "Edit") {
+                                    //   edit
+                                    Navigator.push(context, MaterialPageRoute(
+                                      builder: (context) {
+                                        return MyAddUpdatePage(
+                                          mychoice: "Update",
+                                          docID: currDocId,
+                                          mytitle: currModel.title,
+                                          mydesc: currModel.desc,
+                                          myselecteduser:
+                                              currModel.selectedUser,
+                                          mypickDate: currModel.seleteDate,
+                                          list: usernamelist,
+                                        );
+                                      },
+                                    ));
+                                  } // edit end
+                                  else {
+                                    //   delete
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                              title: Text("Confirmation"),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text("Cancel")),
+                                                TextButton(
+                                                    child: Text("Confirm"),
+                                                    onPressed: () {
+                                                      firestore
+                                                          .collection(
+                                                              Utilities.dbtasks)
+                                                          .doc(snapshot.data!
+                                                              .docs[index].id)
+                                                          .delete();
+                                                      Navigator.pop(context);
+                                                    })
+                                              ]);
+                                        });
+                                  } // delete end
+                                });
+                              },
+                              itemBuilder: (BuildContext bc) {
+                                return const [
+                                  PopupMenuItem(
+                                    child: Text("Edit"),
+                                    value: 'Edit',
+                                  ),
+                                  PopupMenuItem(
+                                    child: Text("Delete"),
+                                    value: 'Delete',
+                                  ),
+                                ];
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  )
+                : Center(
+                    child: Text("No Data!!!"),
+                  );
+          }
 
-                return Container(
-                    child: Center(child: Text("Data Was Not Loaded")));
-              },
-            ),
-          ),
-        ],
+          return Container(child: Center(child: Text("Data Was Not Loaded")));
+        },
       ),
     );
   }
@@ -304,17 +294,21 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
+  searchFunc(value) {
+    // print(value);
+  }
+
   getImageUrllist() {
     FirebaseFirestore.instance
         .collection(Utilities.dbtasks)
         .doc()
-        .collection('images')
+        .collection(Utilities.dbimages)
         .get()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((doc) {
         widget.imageUrlList.add(doc["imageUrl"]);
         setState(() {
-          print(widget.imageUrlList.length);
+          // print(widget.imageUrlList.length);
         });
       });
     });
@@ -327,11 +321,6 @@ class _MyHomePageState extends State<MyHomePage> {
         DateTime.fromMillisecondsSinceEpoch(
             int.parse(seldataIntVal.toString())));
     return dateformat;
-  }
-
-  searchFunc(value) {
-    print(value);
-    // var searchResult =
   }
 
   getusernamelist() {
@@ -359,5 +348,27 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       });
     }
+  }
+}
+
+class ExpansionItem extends StatefulWidget {
+  String header;
+  bool isExpanded;
+  dynamic items;
+
+  ExpansionItem(
+      {required this.header, required this.isExpanded, required this.items});
+
+  @override
+  State<ExpansionItem> createState() => _ExpansionItemState();
+}
+
+class _ExpansionItemState extends State<ExpansionItem> {
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      title: Text(widget.header),
+      children: [widget.items],
+    );
   }
 }

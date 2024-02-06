@@ -23,6 +23,7 @@ class Utilities {
   static String dbusers = "users";
   static String dbtasks = "tasks";
   static String dbnotes = "notes";
+  static String dbimages = "images";
 
   // Colors
   static Color bgcolor = Colors.blueAccent;
