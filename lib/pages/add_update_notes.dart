@@ -187,6 +187,8 @@ class _MyAddUpdatePageState extends State<MyAddUpdatePage> {
                   Flexible(
                     child: DropdownButtonHideUnderline(
                       child: DropdownMenu(
+                        enabled: true,
+                        enableSearch: true,
                         hintText: "Assign To..",
                         initialSelection: widget.myselecteduser,
                         textStyle: TextStyle(color: Colors.black),

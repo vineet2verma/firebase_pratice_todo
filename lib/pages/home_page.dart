@@ -129,6 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
         stream: firestore
             .collection(Utilities.dbtasks)
             .where("assignTo", whereIn: usernamefilterlist)
+            .where("status", isEqualTo: "Pending")
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -141,36 +142,29 @@ class _MyHomePageState extends State<MyHomePage> {
             var mdata = snapshot.data!.docs;
 
             return mdata.isNotEmpty
-                ? ListView.builder(
-                    itemCount: mdata.length,
-                    itemBuilder: (context, index) {
-                      var currDocId = mdata[index].id;
+                ? ExpansionTile(
+                    title: Text("Pending Tasks"),
+                    initiallyExpanded: true,
+                    expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                    expandedAlignment: Alignment.center,
+                    collapsedShape: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(11)),
+                    children: mdata.map((e) {
+                      var currDocId = e.id;
 
-                      NoteModel currModel =
-                          NoteModel.fromJson(mdata[index].data());
+                      NoteModel currModel = NoteModel.fromJson(e.data());
 
                       var leftdays = DateTime.now()
                           .difference(DateTime.fromMillisecondsSinceEpoch(
                               currModel.seleteDate!.toInt()))
                           .inDays;
 
-                      // print(currModel.toMap()['status']);
-
-                      // for (var mydata in mdata) {
-                      //   final alldata = mydata.data();
-                      //
-                      //   final mydoers = alldata['assignTo'];
-                      //   final mytask = alldata['desc'];
-                      //   final mystatus = alldata['status'];
-                      //   final mytitle = alldata['title'];
-                      // }
                       return ExpansionTile(
-                        backgroundColor: currModel.status == "Pending"
-                            ? Colors.deepOrange[500]
-                            : Colors.green,
-                        initiallyExpanded:
-                            currModel.status == "Pending" ? true : false,
-                        title: Text(currModel.status.toString()),
+                        title: Text(currModel.selectedUser.toString()),
+                        collapsedBackgroundColor: Colors.blueAccent,
+                        shape: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(21)),
+                        initiallyExpanded: false,
                         children: [
                           ListTile(
                             leading: Text(currModel.selectedUser.toString()),
@@ -246,8 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                       firestore
                                                           .collection(
                                                               Utilities.dbtasks)
-                                                          .doc(snapshot.data!
-                                                              .docs[index].id)
+                                                          .doc(e.id)
                                                           .delete();
                                                       Navigator.pop(context);
                                                     })
@@ -272,8 +265,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ],
                       );
-                    },
-                  )
+                      // },
+                    }).toList())
                 : Center(
                     child: Text("No Data!!!"),
                   );
